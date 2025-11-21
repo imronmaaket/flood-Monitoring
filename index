@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flood Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body class="bg-gray-100">
+  <div class="max-w-7xl mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-6">📊 Flood Monitoring Dashboard</h1>
+
+    <!-- Section: Summary -->
+    <div id="summary" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"></div>
+
+    <!-- Section: Charts -->
+    <div class="bg-white p-4 rounded shadow mb-6">
+      <canvas id="waterChart" height="120"></canvas>
+    </div>
+
+    <!-- Section: Map -->
+    <div class="bg-white p-4 rounded shadow mb-6">
+      <h2 class="font-bold text-lg mb-2">🗺 แผนที่พื้นที่เกิดเหตุ</h2>
+      <div id="map" class="w-full h-96"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white p-4 rounded shadow mb-6">
+      <h2 class="font-bold text-lg mb-2">📄 รายการข้อมูล</h2>
+      <table class="w-full text-left border">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">จังหวัด</th>
+            <th class="p-2 border">อำเภอ</th>
+            <th class="p-2 border">ตำบล</th>
+            <th class="p-2 border">ระดับน้ำ</th>
+            <th class="p-2 border">สถานะ</th>
+            <th class="p-2 border">ฝน (mm)</th>
+            <th class="p-2 border">อัปเดตล่าสุด</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+const API_BASE = "https://script.google.com/macros/s/AKfycbxVGr75EZ9_Sar_u0VFnbVkK39REO2P1E0dv6ERyOAP7utqV4EyfJUQ9ubrsN5rLA3E/exec"; // ใส่ URL ของคุณ
+
+async function loadData() {
+  const res = await fetch(API_BASE);
+  const data = await res.json();
+  renderSummary(data);
+  renderTable(data);
+  renderChart(data);
+  renderMap(data);
+}
+
+// Summary cards
+function renderSummary(data) {
+  const summary = document.getElementById("summary");
+  const total = data.length;
+  const critical = data.filter(r => r.status.includes("วิกฤต") || r.status.includes("ท่วมหนัก")).length;
+  const evac = data.filter(r => r.evacuation_required.includes("ต้อง")).length;
+
+  summary.innerHTML = `
+    <div class="p-4 bg-white shadow rounded"><p class="text-gray-500">จุดรายงานทั้งหมด</p><p class="text-3xl font-bold">${total}</p></div>
+    <div class="p-4 bg-white shadow rounded"><p class="text-gray-500">จุดเสี่ยงสูง/วิกฤต</p><p class="text-3xl font-bold text-red-600">${critical}</p></div>
+    <div class="p-4 bg-white shadow rounded"><p class="text-gray-500">ต้องอพยพ</p><p class="text-3xl font-bold text-orange-600">${evac}</p></div>
+  `;
+}
+
+// Table
+function renderTable(data) {
+  const body = document.getElementById("tableBody");
+  body.innerHTML = data.map(r => `
+    <tr class="border">
+      <td class="p-2 border">${r.province}</td>
+      <td class="p-2 border">${r.district}</td>
+      <td class="p-2 border">${r.subdistrict}</td>
+      <td class="p-2 border">${r.water_level_cm} cm</td>
+      <td class="p-2 border">${r.status}</td>
+      <td class="p-2 border">${r.rainfall_mm}</td>
+      <td class="p-2 border">${r.last_update}</td>
+    </tr>
+  `).join("");
+}
+
+// Chart
+function renderChart(data) {
+  const ctx = document.getElementById("waterChart");
+  const labels = data.map(r => r.subdistrict);
+  const values = data.map(r => Number(r.water_level_cm));
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: "ระดับน้ำ (cm)", data: values }]
+    }
+  });
+}
+
+// Map
+function renderMap(data) {
+  const map = L.map("map").setView([6.43, 101.82], 9);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}).addTo(map);
+
+  data.forEach(r => {
+    if (!r.latitude || !r.longitude) return;
+    L.marker([r.latitude, r.longitude]).addTo(map)
+      .bindPopup(`<b>${r.subdistrict}</b><br>${r.water_level_cm} cm<br>${r.status}`);
+  });
+}
+
+loadData();
+</script>
+
+</body>
+</html>
