@@ -189,6 +189,12 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
         }
+        .moph-logo {
+            width: 90px; /* ลดขนาดลงตามที่ขอ */
+            height: auto;
+            margin-bottom: 18px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 768px) {
@@ -202,8 +208,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-hand-holding-heart"></i> ระบบขอความช่วยเหลือน้ำท่วม</h1>
-            <p>เราพร้อมช่วยเหลือคุณตลอด 24 ชั่วโมง</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f9/%E0%B8%95%E0%B8%A3%E0%B8%B2%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%97%E0%B8%A3%E0%B8%A7%E0%B8%87%E0%B8%AA%E0%B8%B2%E0%B8%98%E0%B8%B2%E0%B8%A3%E0%B8%93%E0%B8%AA%E0%B8%B8%E0%B8%82%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88.png" 
+                 alt="โลโก้กระทรวงสาธารณสุข" class="moph-logo">
+            <h1><i class="fas fa-hand-holding-heart"></i> ระบบขอความช่วยเหลือน้ำท่วม จังหวัดนราธิวาส</h1>
+            <p style="-webkit-text-fill-color: gold">เราพร้อมช่วยเหลือคุณตลอด 24 ชั่วโมง</p>
+            <p style="-webkit-text-fill-color: #ddd">สำนักงานสาธารณสุขจังหวัดนราธิวาส</p>
         </div>
 
         <div class="form-container">
