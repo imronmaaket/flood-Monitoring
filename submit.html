@@ -321,7 +321,7 @@
                 if (result.success) {
                     showMessage('ส่งคำขอความช่วยเหลือสำเร็จ! ทีมงานจะรีบติดต่อกลับโดยด่วน', 'success');
                     document.getElementById('helpForm').reset();
-                    setTimeout(() => goToStatus(), 6000);
+                    //setTimeout(() => goToStatus(), 6000);
                 } else {
                     throw new Error(result.error || 'เกิดข้อผิดพลาด');
                 }
